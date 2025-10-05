@@ -1,7 +1,6 @@
 package mod.icy_turtle.modeor.client;
 
 import mod.icy_turtle.modeor.ModEntities;
-import mod.icy_turtle.modeor.entity.MeteorEntity;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.minecraft.client.render.entity.FlyingItemEntityRenderer;
