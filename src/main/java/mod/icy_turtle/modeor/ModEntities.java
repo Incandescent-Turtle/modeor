@@ -14,11 +14,10 @@ public class ModEntities
 	public static final RegistryKey<EntityType<?>> METEOR_KEY =
 			RegistryKey.of(Registries.ENTITY_TYPE.getKey(), METEOR_ID);
 	private static final EntityType<MeteorEntity> METEOR_TYPE_BUILT =
-			EntityType.Builder.create(MeteorEntity::new, SpawnGroup.MISC)
+			EntityType.Builder.<MeteorEntity>create(MeteorEntity::new, SpawnGroup.MISC)
 					.dimensions(0.75f, 0.75f)
 					.build(METEOR_KEY);
 
-	// 4️⃣ Register the entity into the ENTITY_TYPE registry
 	public static final EntityType<MeteorEntity> METEOR =
 			Registry.register(Registries.ENTITY_TYPE, METEOR_KEY, METEOR_TYPE_BUILT);
 

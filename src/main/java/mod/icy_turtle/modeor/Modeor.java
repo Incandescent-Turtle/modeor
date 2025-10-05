@@ -1,5 +1,6 @@
 package mod.icy_turtle.modeor;
 
+import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
@@ -18,8 +19,10 @@ public class Modeor implements ModInitializer
             dispatcher.register(CommandManager.literal("meteor")
                     .then(argument("mass", IntegerArgumentType.integer())
                             .then(argument("angle", IntegerArgumentType.integer())
-                                    .then(argument("speed", IntegerArgumentType.integer())
-                                            .executes(Command::executeCommand)))));
+                                    .then(argument("speed", FloatArgumentType.floatArg())
+											.then(argument("gravmax", FloatArgumentType.floatArg())
+													.then(argument("gravacc", FloatArgumentType.floatArg())
+															.executes(Command::executeCommand)))))));
         });
     }
 }

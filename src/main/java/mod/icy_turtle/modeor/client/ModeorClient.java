@@ -12,6 +12,5 @@ public class ModeorClient implements ClientModInitializer
 	public void onInitializeClient()
 	{
 		EntityRendererRegistry.register(ModEntities.METEOR, FlyingItemEntityRenderer::new);
-
 	}
 }

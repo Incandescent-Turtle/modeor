@@ -1,5 +1,6 @@
 package mod.icy_turtle.modeor;
 
+import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import mod.icy_turtle.modeor.entity.MeteorEntity;
@@ -12,24 +13,25 @@ public class Command {
 
         ServerCommandSource src = context.getSource();
 
-        src.sendFeedback(() -> Text.literal(
-                String.valueOf(IntegerArgumentType.getInteger(context, "mass"))), true);
-        src.sendFeedback(() -> Text.literal(
-                String.valueOf(IntegerArgumentType.getInteger(context, "angle"))), true);
-        src.sendFeedback(() -> Text.literal(
-                String.valueOf(IntegerArgumentType.getInteger(context, "speed"))), true);
-
         ServerPlayerEntity player = src.getPlayer();
-
-        MeteorEntity meteor = new MeteorEntity(ModEntities.METEOR, src.getWorld());
-
         assert player != null;
-        // todo probably check what direction player is facing to always spawn it in their view
-        // player.getYaw() -> left and right
-        // player.getPitch() -> up and down
 
-        meteor.setPosition(player.getX() + 10, player.getY() + 20, player.getZ());
+        MeteorEntity meteor = new MeteorEntity(ModEntities.METEOR, src.getWorld(), FloatArgumentType.getFloat(context, "speed"),FloatArgumentType.getFloat(context, "gravmax"),FloatArgumentType.getFloat(context, "gravacc"), player.getYaw());
 
+        // spawns meteor 2 blocks in front of player and 2 blocks above eye height
+        float yaw = player.getYaw();
+        double yawRad = Math.toRadians(-yaw - 180);
+        double xDir = Math.sin(yawRad);
+        double zDir = Math.cos(yawRad);
+
+        double spawnDistance = 2.0;
+        double spawnX = player.getX() + xDir * spawnDistance;
+        double spawnY = player.getY() + player.getStandingEyeHeight() + 2;
+        double spawnZ = player.getZ() + zDir * spawnDistance;
+
+        meteor.setPosition(spawnX, spawnY, spawnZ);
+
+        meteor.setYaw(player.getYaw());
         src.getWorld().spawnEntity(meteor);
         return 1;
     }
