@@ -18,98 +18,99 @@ import static mod.icy_turtle.modeor.Units.KMHToBPS;
 
 public class MeteorEntity extends FireballEntity
 {
-	private float speed=0, gravmax=0, gravacc=0, angle=0;
-	private double startingY = 300;
-	private final ServerBossBar bossBar;
+    private float speed=0, gravmax=0, gravacc=0, angle=0;
+    private double startingY = -1;
+    private final ServerBossBar bossBar;
 
-	private final MeteorData data;
-	public MeteorEntity(MeteorData data, EntityType<? extends MeteorEntity> entityType, World world)
-	{
-		super(entityType, world);
-		this.bossBar = new ServerBossBar(Text.literal("☄ Meteor Approaching!").formatted(Formatting.RED), BossBar.Color.RED, BossBar.Style.PROGRESS);
-		this.bossBar.setPercent(1.0f); // start full
-		this.bossBar.setVisible(true);
-		this.data = data;
-		this.setCustomName(Text.literal(data.name));
-	}
+    public MeteorEntity(MeteorData data, EntityType<? extends MeteorEntity> entityType, World world)
+    {
+        super(entityType, world);
+        this.bossBar = new ServerBossBar(Text.literal("☄ Meteor Approaching!").formatted(Formatting.RED), BossBar.Color.RED, BossBar.Style.PROGRESS);
+        this.bossBar.setPercent(1.0f); // start full
+        this.bossBar.setVisible(true);
+        this.setCustomName(Text.literal(data.name));
+    }
 
-	public MeteorEntity(EntityType<? extends MeteorEntity> entityType, World world)
-	{
-		this(MeteorData.DEFAULT, entityType, world);
-	}
+    public MeteorEntity(EntityType<? extends MeteorEntity> entityType, World world)
+    {
+        this(MeteorData.DEFAULT, entityType, world);
+    }
 
-	public MeteorEntity(MeteorData data, EntityType<? extends MeteorEntity> entityType, World world, float speed, float gravmax, float gravacc, float angle)
-	{
-		this(data, entityType, world);
-		this.speed = speed;
-		this.gravmax = gravmax;
-		this.gravacc = gravacc;
-		this.angle=angle;
-	}
+    public MeteorEntity(MeteorData data, EntityType<? extends MeteorEntity> entityType, World world, float speed, float gravmax, float gravacc, float angle)
+    {
+        this(data, entityType, world);
+        this.speed = speed;
+        this.gravmax = gravmax;
+        this.gravacc = gravacc;
+        this.angle=angle;
+    }
 
-	@Override
-	public void tick() {
-		super.tick();
-		var world = getEntityWorld();
+    @Override
+    public void tick() {
+        super.tick();
+        var world = getEntityWorld();
 
-		if (!world.isClient() && world instanceof ServerWorld)
-		{
-			// uses initial angle to update x and y, uses gravity to update y
-			double yawRad = Math.toRadians(angle+180);
+        if (!world.isClient() && world instanceof ServerWorld)
+        {
+            if (startingY < 0) {
+                startingY = this.getY();
+            }
 
-			double xDir = Math.sin(yawRad);
-			double zDir = -Math.cos(yawRad);
+            double yawRad = Math.toRadians(angle+180);
 
-			double horizSpeed = KMHToBPS(speed);
+            double xDir = Math.sin(yawRad);
+            double zDir = -Math.cos(yawRad);
 
-			double x = xDir * horizSpeed;
-			double z = zDir * horizSpeed;
+            double horizSpeed = KMHToBPS(speed);
 
-			var y = Math.max(this.getVelocity().y + GRAVITY_BPS/gravacc, -gravmax);
+            double x = xDir * horizSpeed;
+            double z = zDir * horizSpeed;
 
-			this.setVelocity(x, y, z);
+            var y = Math.max(this.getVelocity().y + GRAVITY_BPS/gravacc, -gravmax);
 
-			// altitude boss bar
-			double altitude = this.getY();
-			float percent = (float)Math.max(0.0, Math.min(1.0, (altitude-63) / (startingY-63)));
-			this.bossBar.setPercent(percent);
+            this.setVelocity(x, y, z);
 
-			this.bossBar.setName(Text.literal("☄ " + this.getCustomName().getString() + " (" + (int)this.getY() + " m)"));
-		}
-	}
+            double altitude = this.getY();
+            float percent = (float)Math.max(0.0, Math.min(1.0, (altitude-63) / (startingY-63)));
+            this.bossBar.setPercent(percent);
 
-	@Override
-	protected void onBlockHit(BlockHitResult blockHitResult)
-	{
-		var world = getEntityWorld();
-		if (!world.isClient()) {
-			world.createExplosion(this, this.getX(), this.getY(), this.getZ(), 2.5f, true, World.ExplosionSourceType.MOB);
-			this.remove(RemovalReason.KILLED);
-		}
-	}
+            String meteorName = this.getCustomName() != null ? this.getCustomName().getString() : "Meteor";
+            this.bossBar.setName(Text.literal("☄ " + meteorName + " (" + (int)this.getY() + " m)"));
+        }
+    }
 
-	@Override
-	public void onSpawnPacket(EntitySpawnS2CPacket entitySpawnS2CPacket)
-	{
-		super.onSpawnPacket(entitySpawnS2CPacket);
-		startingY = this.getY();
-	}
+    @Override
+    protected void onBlockHit(BlockHitResult blockHitResult)
+    {
+        var world = getEntityWorld();
+        if (!world.isClient()) {
+            world.createExplosion(this, this.getX(), this.getY(), this.getZ(), 2.5f, true, World.ExplosionSourceType.MOB);
+            this.remove(RemovalReason.KILLED);
+        }
+    }
 
-	@Override
-	public void onStartedTrackingBy(ServerPlayerEntity player) {
-		super.onStartedTrackingBy(player);
-		bossBar.addPlayer(player);
-	}
+    @Override
+    public void onSpawnPacket(EntitySpawnS2CPacket entitySpawnS2CPacket)
+    {
+        super.onSpawnPacket(entitySpawnS2CPacket);
+        // This only runs on client side, so don't set startingY here
+    }
 
-	@Override
-	public void onStoppedTrackingBy(ServerPlayerEntity player) {
-		super.onStoppedTrackingBy(player);
-		bossBar.removePlayer(player);
-	}
+    @Override
+    public void onStartedTrackingBy(ServerPlayerEntity player) {
+        super.onStartedTrackingBy(player);
+        bossBar.addPlayer(player);
+    }
 
-	@Override
-	public void remove(RemovalReason reason) {
-		super.remove(reason);
-		this.bossBar.clearPlayers();
-	}
+    @Override
+    public void onStoppedTrackingBy(ServerPlayerEntity player) {
+        super.onStoppedTrackingBy(player);
+        bossBar.removePlayer(player);
+    }
+
+    @Override
+    public void remove(RemovalReason reason) {
+        super.remove(reason);
+        this.bossBar.clearPlayers();
+    }
 }
