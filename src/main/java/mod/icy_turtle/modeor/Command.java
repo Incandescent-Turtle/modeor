@@ -17,7 +17,11 @@ public class Command {
         ServerPlayerEntity player = src.getPlayer();
         assert player != null;
 
-        MeteorEntity meteor = new MeteorEntity(ModEntities.METEOR, src.getWorld(), FloatArgumentType.getFloat(context, "speed"),FloatArgumentType.getFloat(context, "gravmax"),FloatArgumentType.getFloat(context, "gravacc"), player.getYaw());
+        MeteorData nextMeteorData = DataFetcher.getNextMeteor();
+
+        src.sendFeedback(() -> Text.literal(nextMeteorData.toString()), false);
+
+        MeteorEntity meteor = new MeteorEntity(nextMeteorData, ModEntities.METEOR, src.getWorld(), FloatArgumentType.getFloat(context, "speed"),FloatArgumentType.getFloat(context, "gravmax"),FloatArgumentType.getFloat(context, "gravacc"), player.getYaw());
 
         // spawns meteor 2 blocks in front of player and 2 blocks above eye height
         float yaw = player.getYaw();
@@ -35,9 +39,6 @@ public class Command {
         meteor.setYaw(player.getYaw());
         src.getWorld().spawnEntity(meteor);
 
-        MeteorData nextMeteor = DataFetcher.getNextMeteor();
-
-        src.sendFeedback(() -> Text.literal(nextMeteor.toString()), false);
         return 1;
     }
 }

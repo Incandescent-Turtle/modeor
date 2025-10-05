@@ -7,7 +7,6 @@ import net.minecraft.client.render.entity.FlyingItemEntityRenderer;
 
 public class ModeorClient implements ClientModInitializer
 {
-
 	@Override
 	public void onInitializeClient()
 	{
