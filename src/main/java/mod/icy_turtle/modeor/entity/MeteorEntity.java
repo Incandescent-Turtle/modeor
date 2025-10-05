@@ -21,14 +21,23 @@ public class MeteorEntity extends FireballEntity
     private float speed=0, gravmax=0, gravacc=0, angle=0;
     private double startingY = -1;
     private final ServerBossBar bossBar;
+    private float scale = 1.0f;
 
     public MeteorEntity(MeteorData data, EntityType<? extends MeteorEntity> entityType, World world)
     {
         super(entityType, world);
         this.bossBar = new ServerBossBar(Text.literal("☄ Meteor Approaching!").formatted(Formatting.RED), BossBar.Color.RED, BossBar.Style.PROGRESS);
-        this.bossBar.setPercent(1.0f); // start full
+        this.bossBar.setPercent(1.0f);
         this.bossBar.setVisible(true);
         this.setCustomName(Text.literal(data.name));
+
+        double avgDiameterMeters = (data.diameterMetersMin + data.diameterMetersMax) / 2.0;
+
+        this.scale = (float)(avgDiameterMeters / 0.75);
+
+        this.scale = Math.max(0.1f, Math.min(this.scale, 50.0f));
+
+        this.calculateDimensions();
     }
 
     public MeteorEntity(EntityType<? extends MeteorEntity> entityType, World world)
@@ -84,7 +93,10 @@ public class MeteorEntity extends FireballEntity
     {
         var world = getEntityWorld();
         if (!world.isClient()) {
-            world.createExplosion(this, this.getX(), this.getY(), this.getZ(), 2.5f, true, World.ExplosionSourceType.MOB);
+            float explosionPower = 2.5f * scale;
+            explosionPower = Math.min(explosionPower, 100.0f);
+
+            world.createExplosion(this, this.getX(), this.getY(), this.getZ(), explosionPower, true, World.ExplosionSourceType.MOB);
             this.remove(RemovalReason.KILLED);
         }
     }
@@ -93,7 +105,6 @@ public class MeteorEntity extends FireballEntity
     public void onSpawnPacket(EntitySpawnS2CPacket entitySpawnS2CPacket)
     {
         super.onSpawnPacket(entitySpawnS2CPacket);
-        // This only runs on client side, so don't set startingY here
     }
 
     @Override
@@ -113,4 +124,5 @@ public class MeteorEntity extends FireballEntity
         super.remove(reason);
         this.bossBar.clearPlayers();
     }
+
 }

@@ -1,5 +1,7 @@
 package mod.icy_turtle.modeor.data;
 
+import java.util.Arrays;
+
 public class MeteorData
 {
 	// random one from oct 5th 2025
@@ -27,6 +29,7 @@ public class MeteorData
 	@Override
 	public String toString()
 	{
-		return "MeteorData{" + "name='" + name + '\'' + ", diameterMetersMax=" + diameterMetersMax + ", diameterMetersMin=" + diameterMetersMin + ", velocityKps=" + velocityKps + ", missDistanceKm=" + missDistanceKm + ", magnitude=" + magnitude + ", hazardous=" + hazardous + '}';
+        String hazard = hazardous ? "hazardous." : "not hazardous.";
+		return "Meteor incoming with name " + name  + ", with a max diameter of " + diameterMetersMax + "m, min diameter of " + diameterMetersMin + "m, velocity " + velocityKps + "km/s, miss distance " + missDistanceKm + "km, magnitude " + magnitude + ", it is " + hazard;
 	}
 }
