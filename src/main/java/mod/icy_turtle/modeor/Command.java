@@ -2,15 +2,12 @@ package mod.icy_turtle.modeor;
 
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import mod.icy_turtle.modeor.data.DataFetcher;
+import mod.icy_turtle.modeor.data.MeteorData;
 import mod.icy_turtle.modeor.entity.MeteorEntity;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
-
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 
 public class Command {
     public static int executeCommand(CommandContext<ServerCommandSource> context) {
@@ -38,18 +35,9 @@ public class Command {
         meteor.setYaw(player.getYaw());
         src.getWorld().spawnEntity(meteor);
 
+        MeteorData nextMeteor = DataFetcher.getNextMeteor();
 
-        HttpClient client = HttpClient.newHttpClient();
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("https://api.nasa.gov/neo/rest/v1/feed?start_date=2025-10-05&end_date=2025-10-05&api_key=GfkcwkM5OhbvDk8JWlbB8vDvbeFgcnfMNCKrrdpY"))
-                .header("Accept", "application/json")
-                .build();
-
-        String apiResponse = client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
-                .thenApply(HttpResponse::body)
-                .join();
-
-        src.sendFeedback(() -> Text.literal(apiResponse), false);
+        src.sendFeedback(() -> Text.literal(nextMeteor.toString()), false);
         return 1;
     }
 }
