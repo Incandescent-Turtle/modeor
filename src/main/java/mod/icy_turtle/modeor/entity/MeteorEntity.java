@@ -1,21 +1,9 @@
 package mod.icy_turtle.modeor.entity;
 
-import mod.icy_turtle.modeor.Modeor;
-import mod.icy_turtle.modeor.Units;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.projectile.FireballEntity;
-import net.minecraft.text.Text;
 import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.hit.HitResult;
 import net.minecraft.world.World;
-
-import java.io.StringReader;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 
 import static mod.icy_turtle.modeor.Units.GRAVITY_BPS;
 import static mod.icy_turtle.modeor.Units.KMHToBPS;
